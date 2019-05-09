@@ -1,4 +1,3 @@
-
 package pkg
 
 import (
@@ -7,10 +6,6 @@ import (
 	"regexp"
 	"time"
 	"unicode"
-)
-
-const (
-	POSITIVE_INT_CSV_PATTERN = "^([1-9][0-9]*,)*([1-9][0-9]*)$"
 )
 
 // StripWhitespace removes all white space from a string.
@@ -49,8 +44,8 @@ func WarnIfErr(err error) bool {
 	return false
 }
 
-// IsPositiveIntCSV returns true if the input is a CSV of positive integers.
-func IsPositiveIntCSV(s string) bool {
-	match, _ := regexp.MatchString(POSITIVE_INT_CSV_PATTERN, s)
+// IsUintCSV returns true if the input is a CSV of positive integers.
+func IsUintCSV(s string) bool {
+	match, _ := regexp.MatchString("^([1-9][0-9]*,)*([1-9][0-9]*)$", s)
 	return match
 }
