@@ -17,7 +17,6 @@ func assertEntries(t *testing.T, ml MsgList, expMsg ...string) {
 	n := ml.Head
 
 	for i, v := range expMsg {
-
 		if i != 0 {
 			n = n.Next
 			require.NotNil(t, n)
@@ -28,6 +27,13 @@ func assertEntries(t *testing.T, ml MsgList, expMsg ...string) {
 
 	assert.Nil(t, n.Next)
 	assert.Equal(t, n, ml.Tail)
+
+	size := 0
+	for m := ml.Head; m != nil; m = m.Next {
+		size++
+	}
+	assert.Equal(t, len(expMsg), size)
+	assert.Equal(t, size, ml.Size)
 }
 
 // ****************************************************************************
@@ -48,77 +54,27 @@ func TestMsgList_Add_2(t *testing.T) {
 }
 
 // ****************************************************************************
-// MsgList.AddIfEmpty()
+// MsgList.ForEach()
 // ****************************************************************************
 
-func TestMsgList_AddIfEmpty_1(t *testing.T) {
+func TestMsgList_ForEach_1(t *testing.T) {
 	a := MsgList{}
-	a.AddIfEmpty("", "abc")
-	assertEntries(t, a, "abc")
-}
+	a.Add("abc")
+	a.Add("xyz")
 
-func TestMsgList_AddIfEmpty_2(t *testing.T) {
-	a := MsgList{}
-	a.AddIfEmpty("not empty", "abc")
+	total := 0
+	a.ForEach(func(i int, m *Msg) {
+		total++
 
-	assert.Nil(t, a.Head)
-	assert.Nil(t, a.Tail)
-}
+		switch i {
+		case 0:
+			assert.Equal(t, "abc", m.Message)
+		case 1:
+			assert.Equal(t, "xyz", m.Message)
+		}
+	})
 
-// ****************************************************************************
-// MsgList.AddIfNotUint()
-// ****************************************************************************
-
-func TestMsgList_AddIfNotUint_1(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUint("not uint", "abc")
-	assertEntries(t, a, "abc")
-}
-
-func TestMsgList_AddIfNotUint_2(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUint("1.1", "abc")
-	assertEntries(t, a, "abc")
-}
-
-func TestMsgList_AddIfNotUint_3(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUint("9", "abc")
-
-	assert.Nil(t, a.Head)
-	assert.Nil(t, a.Tail)
-}
-
-// ****************************************************************************
-// MsgList.AddIfNotUintCSV()
-// ****************************************************************************
-
-func TestMsgList_AddIfNotUintCSV_1(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUintCSV("not uint csv", "abc")
-	assertEntries(t, a, "abc")
-}
-
-func TestMsgList_AddIfNotUintCSV_2(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUintCSV("1,2.2,3", "abc")
-	assertEntries(t, a, "abc")
-}
-
-func TestMsgList_AddIfNotUintCSV_3(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUintCSV("1,2,3", "abc")
-
-	assert.Nil(t, a.Head)
-	assert.Nil(t, a.Tail)
-}
-
-func TestMsgList_AddIfNotUintCSV_4(t *testing.T) {
-	a := MsgList{}
-	a.AddIfNotUintCSV("", "abc")
-
-	assert.Nil(t, a.Head)
-	assert.Nil(t, a.Tail)
+	assert.Equal(t, 2, total, "Only expected 2 elements")
 }
 
 // ****************************************************************************
@@ -141,4 +97,26 @@ func TestMsgList_String_2(t *testing.T) {
 
 	s := a.String()
 	assert.Equal(t, "abc, efg, xyz", s)
+}
+
+// ****************************************************************************
+// MsgList.Slice()
+// ****************************************************************************
+
+func TestMsgList_Slice_1(t *testing.T) {
+	a := MsgList{}
+	a.Add("abc")
+
+	s := a.Slice()
+	assert.Equal(t, []string{"abc"}, s)
+}
+
+func TestMsgList_Slice_2(t *testing.T) {
+	a := MsgList{}
+	a.Add("abc")
+	a.Add("efg")
+	a.Add("xyz")
+
+	s := a.Slice()
+	assert.Equal(t, []string{"abc", "efg", "xyz"}, s)
 }

@@ -38,22 +38,25 @@ func TestStripWhitespace(t *testing.T) {
 		"Failed when whitespace only string given")
 }
 
-func TestIsUintCSV(t *testing.T) {
-	assert.True(t, IsUintCSV("5"),
-		"Failed when single digit given")
-	assert.True(t, IsUintCSV("1,2,3,4"),
-		"Failed when multi-digit CSV given")
-	assert.False(t, IsUintCSV(""),
-		"Failed when empty string given")
-	assert.False(t, IsUintCSV("a"),
-		"Failed when single non-numeric char given")
-	assert.False(t, IsUintCSV("abc,efg,xyz"),
-		"Failed when multiple non-numeric chars given")
-}
-
 func TestToUnixMilli(t *testing.T) {
 	aIn, err := time.Parse(time.RFC3339, "2019-04-15T21:50:33-00:00")
 	require.Nil(t, err)
 	aOut := ToUnixMilli(aIn)
 	assert.Equal(t, int64(1555365033000), aOut)
+}
+
+func TestIsUint(t *testing.T) {
+	assert.True(t, IsUint("9"), "Failed when valid unsigned integer given")
+	assert.False(t, IsUint("1.1"), "Failed when float given")
+	assert.False(t, IsUint(""), "Failed when empty string given")
+	assert.False(t, IsUint("a"), "Failed when non-numeric char given")
+}
+
+func TestIsUintCSV(t *testing.T) {
+	assert.True(t, IsUintCSV("5"), "Failed when single digit given")
+	assert.True(t, IsUintCSV("1,2,3,4"), "Failed when multi-digit CSV given")
+	assert.False(t, IsUintCSV(""), "Failed when empty string given")
+	assert.False(t, IsUintCSV("a"), "Failed when single non-numeric char given")
+	assert.False(t, IsUintCSV("abc,efg,xyz"),
+		"Failed when multiple non-numeric chars given")
 }

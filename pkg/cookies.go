@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 )
@@ -42,6 +43,16 @@ func WarnIfErr(err error) bool {
 		return true
 	}
 	return false
+}
+
+// IsUint returns true if the input is an unsigned integer. Note that false will
+// be returned if the string cannot be parsed to an integer.
+func IsUint(s string) bool {
+	i, err := strconv.Atoi(s)
+	if err != nil || i < 1 {
+		return false
+	}
+	return true
 }
 
 // IsUintCSV returns true if the input is a CSV of positive integers.
