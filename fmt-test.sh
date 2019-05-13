@@ -1,4 +1,5 @@
 #!/bin/bash
 
-gofmt -w -s ./pkg
+clear
+go fmt ./pkg
 go test ./pkg

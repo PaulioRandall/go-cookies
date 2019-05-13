@@ -7,100 +7,116 @@ import (
 	require "github.com/stretchr/testify/require"
 )
 
-// ****************************************************************************
-// AppendIfEmpty()
-// ****************************************************************************
+// assertEntries tests that the supplied MsgList contains entries, each
+// with the espected Message, in the order supplied.
+func assertEntries(t *testing.T, ml MsgList, expMsg ...string) {
 
-func TestAppendIfEmpty_1(t *testing.T) {
-	act := AppendIfEmpty("", []string{}, "abc")
-	assert.Len(t, act, 1)
-	assert.Contains(t, act, "abc")
-}
+	require.NotNil(t, ml.Head)
+	require.NotNil(t, ml.Tail)
 
-func TestAppendIfEmpty_2(t *testing.T) {
-	act := AppendIfEmpty("", []string{"xyz"}, "abc")
-	assert.Len(t, act, 2)
-	assert.Contains(t, act, "xyz")
-	assert.Contains(t, act, "abc")
-}
+	n := ml.Head
 
-func TestAppendIfEmpty_3(t *testing.T) {
-	act := AppendIfEmpty("NOT-EMPTY", []string{}, "abc")
-	assert.Len(t, act, 0)
-}
+	for i, v := range expMsg {
 
-// ****************************************************************************
-// AppendIfNotUint()
-// ****************************************************************************
+		if i != 0 {
+			n = n.Next
+			require.NotNil(t, n)
+		}
 
-func TestAppendIfNotUint___1(t *testing.T) {
-	act := AppendIfNotUint("5", []string{}, "abc")
-	assert.Len(t, act, 0)
-}
+		assert.Equal(t, v, n.Message)
+	}
 
-func TestAppendIfNotUint___2(t *testing.T) {
-	act := AppendIfNotUint("0", []string{}, "abc")
-	assert.Len(t, act, 1)
-	assert.Contains(t, act, "abc")
-}
-
-func TestAppendIfNotUint___3(t *testing.T) {
-	act := AppendIfNotUint("-5", []string{}, "abc")
-	assert.Len(t, act, 1)
-	assert.Contains(t, act, "abc")
-}
-
-func TestAppendIfNotUint___4(t *testing.T) {
-	act := []string{}
-	act = AppendIfNotUint("-1", act, "abc")
-	act = AppendIfNotUint("-1", act, "efg")
-	act = AppendIfNotUint("-1", act, "hij")
-	assert.Len(t, act, 3)
-	assert.Contains(t, act, "abc")
-	assert.Contains(t, act, "efg")
-	assert.Contains(t, act, "hij")
+	assert.Nil(t, n.Next)
+	assert.Equal(t, n, ml.Tail)
 }
 
 // ****************************************************************************
-// AppendIfNotUintCSV()
+// MsgList.Add()
 // ****************************************************************************
 
-func TestAppendIfNotUintCSV_1(t *testing.T) {
-	act := AppendIfNotUintCSV("1,2,99,4,3", []string{}, "abc")
-	assert.Len(t, act, 0)
+func TestMsgList_Add_1(t *testing.T) {
+	a := MsgList{}
+	a.Add("abc")
+	assertEntries(t, a, "abc")
 }
 
-func TestAppendIfNotUintCSV_2(t *testing.T) {
-	act := AppendIfNotUintCSV("4", []string{}, "abc")
-	assert.Len(t, act, 0)
+func TestMsgList_Add_2(t *testing.T) {
+	a := MsgList{}
+	a.Add("abc")
+	a.Add("xyz")
+	assertEntries(t, a, "abc", "xyz")
 }
 
-func TestAppendIfNotUintCSV_3(t *testing.T) {
-	act := AppendIfNotUintCSV("0", []string{}, "abc")
-	require.Len(t, act, 1)
-	assert.Equal(t, "abc", act[0])
+// ****************************************************************************
+// MsgList.AddIfEmpty()
+// ****************************************************************************
+
+func TestMsgList_AddIfEmpty_1(t *testing.T) {
+	a := MsgList{}
+	a.AddIfEmpty("", "abc")
+	assertEntries(t, a, "abc")
 }
 
-func TestAppendIfNotUintCSV_4(t *testing.T) {
-	act := AppendIfNotUintCSV("-99", []string{}, "abc")
-	require.Len(t, act, 1)
-	assert.Equal(t, "abc", act[0])
+func TestMsgList_AddIfEmpty_2(t *testing.T) {
+	a := MsgList{}
+	a.AddIfEmpty("not empty", "abc")
+
+	assert.Nil(t, a.Head)
+	assert.Nil(t, a.Tail)
 }
 
-func TestAppendIfNotUintCSV_5(t *testing.T) {
-	act := AppendIfNotUintCSV("3,2,1,0", []string{}, "abc")
-	require.Len(t, act, 1)
-	assert.Equal(t, "abc", act[0])
+// ****************************************************************************
+// MsgList.AddIfNotUint()
+// ****************************************************************************
+
+func TestMsgList_AddIfNotUint_1(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUint("not uint", "abc")
+	assertEntries(t, a, "abc")
 }
 
-func TestAppendIfNotUintCSV_6(t *testing.T) {
-	act := AppendIfNotUintCSV(",1,2", []string{}, "abc")
-	require.Len(t, act, 1)
-	assert.Equal(t, "abc", act[0])
+func TestMsgList_AddIfNotUint_2(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUint("1.1", "abc")
+	assertEntries(t, a, "abc")
 }
 
-func TestAppendIfNotUintCSV_7(t *testing.T) {
-	act := AppendIfNotUintCSV("", []string{}, "abc")
-	require.Len(t, act, 1)
-	assert.Equal(t, "abc", act[0])
+func TestMsgList_AddIfNotUint_3(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUint("9", "abc")
+
+	assert.Nil(t, a.Head)
+	assert.Nil(t, a.Tail)
+}
+
+// ****************************************************************************
+// MsgList.AddIfNotUintCSV()
+// ****************************************************************************
+
+func TestMsgList_AddIfNotUintCSV_1(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUintCSV("not uint csv", "abc")
+	assertEntries(t, a, "abc")
+}
+
+func TestMsgList_AddIfNotUintCSV_2(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUintCSV("1,2.2,3", "abc")
+	assertEntries(t, a, "abc")
+}
+
+func TestMsgList_AddIfNotUintCSV_3(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUintCSV("1,2,3", "abc")
+
+	assert.Nil(t, a.Head)
+	assert.Nil(t, a.Tail)
+}
+
+func TestMsgList_AddIfNotUintCSV_4(t *testing.T) {
+	a := MsgList{}
+	a.AddIfNotUintCSV("", "abc")
+
+	assert.Nil(t, a.Head)
+	assert.Nil(t, a.Tail)
 }
