@@ -120,3 +120,25 @@ func TestMsgList_AddIfNotUintCSV_4(t *testing.T) {
 	assert.Nil(t, a.Head)
 	assert.Nil(t, a.Tail)
 }
+
+// ****************************************************************************
+// MsgList.String()
+// ****************************************************************************
+
+func TestMsgList_String_1(t *testing.T) {
+	a := MsgList{}
+	a.Add("abc")
+
+	s := a.String()
+	assert.Equal(t, "abc", s)
+}
+
+func TestMsgList_String_2(t *testing.T) {
+	a := MsgList{}
+	a.Add("abc")
+	a.Add("efg")
+	a.Add("xyz")
+
+	s := a.String()
+	assert.Equal(t, "abc, efg, xyz", s)
+}

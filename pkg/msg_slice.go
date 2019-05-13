@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"strconv"
+	"strings"
 )
 
 // MsgList represents a chain of ordered messages by providing the head and tail
@@ -55,4 +56,16 @@ func (ml *MsgList) AddIfNotUintCSV(s string, m string) {
 	if s != "" && !IsUintCSV(s) {
 		ml.Add(m)
 	}
+}
+
+// String returns the list of messages as a comma delimited string.
+func (ml *MsgList) String() string {
+	sb := strings.Builder{}
+	for m := ml.Head; m != nil; m = m.Next {
+		if m != ml.Head {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(m.Message)
+	}
+	return sb.String()
 }
