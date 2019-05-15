@@ -62,9 +62,10 @@ func IsUintCSV(s string) bool {
 	return match
 }
 
-// Indent prefixes each line of 's' with 'n' instances of 'p'. Panics if 'n' is
-// negative.
-func Indent(p string, n int, s string) string {
+// Indent creates a prefix of 'n' instances of 'p' which it prepends to each
+// line of 's'. Returns 's' unchanged if 'n' is 0 or p is empty but panics if
+// 'n' is negative.
+func Indent(n int, p string, s string) string {
 	if n < 0 {
 		panic("'n', the number of prefix instances, must not be negative")
 	}

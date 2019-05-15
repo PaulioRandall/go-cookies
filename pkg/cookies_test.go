@@ -61,24 +61,16 @@ func TestIsUintCSV(t *testing.T) {
 		"Failed when multiple non-numeric chars given")
 }
 
-func TestIndent_1(t *testing.T) {
-	exp := "\t\t\n\t\tThe piper at the gates of dawn\n\t\t"
-	act := Indent("\t", 2, "\nThe piper at the gates of dawn\n")
-	assert.Equal(t, exp, act)
-}
-
-func TestIndent_2(t *testing.T) {
-	exp := "Moonglow"
-
-	act := Indent("", 1, exp)
+func TestIndent(t *testing.T) {
+	exp := "\t\t\n\t\tMoonglow\n\t\tMoonglow\n\t\t"
+	act := Indent(2, "\t", "\nMoonglow\nMoonglow\n")
 	assert.Equal(t, exp, act)
 
-	act = Indent("\t", 0, exp)
-	assert.Equal(t, exp, act)
-}
+	assert.Equal(t, "Moonglow", Indent(1, "", "Moonglow"))
+	assert.Equal(t, "Moonglow", Indent(0, "\t", "Moonglow"))
+	assert.Equal(t, "\t", Indent(1, "\t", ""))
 
-func TestIndent_3(t *testing.T) {
 	assert.Panics(t, func() {
-		Indent("\t", -5, "Moonglow")
+		Indent(-5, "\t", "Moonglow")
 	})
 }
