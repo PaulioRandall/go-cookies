@@ -83,22 +83,25 @@ func TestTrimPrefixSpace(t *testing.T) {
 	assert.Equal(t, "", TrimPrefixSpace(""))
 }
 
-func TestForEachLine(t *testing.T) {
-	a := ForEachLine("a\nb", func(i int, l string) string {
+func TestForEachToken(t *testing.T) {
+	f := func(i int, l string) string {
 		switch i {
 		case 0:
 			assert.Equal(t, "a", l)
 		case 1:
 			assert.Equal(t, "b", l)
 		default:
-			assert.Fail(t, "Only expected 2 values")
+			assert.Fail(t, "Only expected 2 tokens")
 		}
 		return fmt.Sprintf("%s%d", l, i)
-	})
+	}
+
+	a := ForEachToken("a\nb", "\n", f)
 	assert.Equal(t, "a0\nb1", a)
 
-	b := ForEachLine("", func(i int, l string) string {
-		return fmt.Sprintf("%s%d", l, i)
-	})
-	assert.Equal(t, "0", b)
+	b := ForEachToken("a", "\n", f)
+	assert.Equal(t, "a0", b)
+
+	c := ForEachToken("ab", "", f)
+	assert.Equal(t, "a0b1", c)
 }

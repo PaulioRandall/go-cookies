@@ -100,13 +100,15 @@ func TrimPrefixSpace(s string) string {
 	return ""
 }
 
-// ForEachLine iterates each line within 's' and applies each line to the
-// function 'f' returning the modified string. It is assumed the Unix '\n' is
-// used to delimit all lines.
-func ForEachLine(s string, f func(i int, l string) string) string {
-	lines := strings.Split(s, "\n")
-	for i, l := range lines {
-		lines[i] = f(i, l)
+// ForEachToken applies to each token within 's', that is delimited by 'sep',
+// the function 'f'. The modified string is then returned.
+//
+// 'sep' and tokenisation behave exactly the as if calling
+// 'strings.Split(s, sep)'.
+func ForEachToken(s string, sep string, f func(i int, l string) string) string {
+	tokens := strings.Split(s, sep)
+	for i, l := range tokens {
+		tokens[i] = f(i, l)
 	}
-	return strings.Join(lines, "\n")
+	return strings.Join(tokens, sep)
 }
