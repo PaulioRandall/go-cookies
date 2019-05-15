@@ -55,27 +55,33 @@ func createNamedTmpFile(t *testing.T, dir, name, content string) string {
 	return n
 }
 
-func TestCompile_1(t *testing.T) {
-	d := createTmpDir(t, ".", "")
-	defer os.RemoveAll(d)
-
-	createNamedTmpFile(t, d, "abc.json", `"abc": {
+const abc = `"abc": {
 	"a": "Weatherwax",
 	"b": "Ogg",
 	"c": "Garlick"
-}`)
+}`
 
-	d2 := d + "/nested"
-	createNamedTmpFile(t, d2, "xyz.json", `"array": [
+const xyz = `"array": [
 	"Wyrd sisters",
 	"Witches abroad",
 	"Lords & ladies"
-]`)
+]`
 
-	tmp := createNamedTmpFile(t, d, "template", `{
+const tmp = `{
 	{{- "\n"}}{{ .Inject "/abc.json" 2}},
 	{{- "\n"}}{{ .Inject "/nested/xyz.json" 2}}
-}`)
+}`
+
+func TestCompile(t *testing.T) {
+	d := createTmpDir(t, ".", "")
+	defer os.RemoveAll(d)
+
+	createNamedTmpFile(t, d, "abc.json", abc)
+
+	d2 := d + "/nested"
+	createNamedTmpFile(t, d2, "xyz.json", xyz)
+
+	tmp := createNamedTmpFile(t, d, "template", tmp)
 
 	inj := Injector{
 		Template:  tmp,
