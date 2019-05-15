@@ -87,24 +87,22 @@ func TestCompile_1(t *testing.T) {
 	require.Nil(t, err)
 
 	exp := `{
-	"abc": {
-		"a": "Weatherwax",
-		"b": "Ogg",
-		"c": "Garlick"
-	},
-	"array": [
-		"Wyrd sisters",
-		"Witches abroad",
-		"Lords & ladies"
-	]
+		"abc": {
+			"a": "Weatherwax",
+			"b": "Ogg",
+			"c": "Garlick"
+		},
+		"array": [
+			"Wyrd sisters",
+			"Witches abroad",
+			"Lords & ladies"
+		]
 }`
 	exp = string(exp)
-	exp = StripWhitespace(exp)
 
 	b, err := ioutil.ReadFile(out)
 	require.Nil(t, err)
 	act := string(b)
-	act = StripWhitespace(act)
 
 	assert.Equal(t, exp, act)
 }
