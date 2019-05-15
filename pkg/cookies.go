@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 )
@@ -59,4 +60,31 @@ func IsUint(s string) bool {
 func IsUintCSV(s string) bool {
 	match, _ := regexp.MatchString("^([1-9][0-9]*,)*([1-9][0-9]*)$", s)
 	return match
+}
+
+// Indent prefixes each line of 's' with 'n' instances of 'p'. Panics if 'n' is
+// negative.
+func Indent(p string, n int, s string) string {
+	if n < 0 {
+		panic("'n', the number of prefix instances, must not be negative")
+	}
+
+	if n == 0 || p == "" {
+		return s
+	}
+
+	lines := strings.Split(s, "\n")
+	pre := strings.Repeat(p, n)
+	sb := strings.Builder{}
+
+	for i, l := range lines {
+		if i != 0 {
+			sb.WriteRune('\n')
+		}
+
+		sb.WriteString(pre)
+		sb.WriteString(l)
+	}
+
+	return sb.String()
 }
