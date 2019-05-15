@@ -13,9 +13,12 @@ type Injector struct {
 	Resources string // Path to the root folder of injectable resources
 }
 
-// Inject takes a filename that is relative to the Resources directory and
-// returns its content with each line indented to the specified number of tabs.
-// This is used within the Template to replace placeholders with some content.
+// Inject is NOT designed to be called directly, instead it is used in templates
+// and called by the "text/template" templating engine.
+//
+// It takes a filename that is relative to the Resources directory and returns
+// its content with each line indented to the specified number of tabs. This is
+// used within the Template to replace placeholders with some content.
 func (i *Injector) Inject(filename string, indent int) string {
 	path := i.Resources + filename
 	bytes, err := ioutil.ReadFile(path)

@@ -89,3 +89,24 @@ func Indent(n int, p string, s string) string {
 
 	return sb.String()
 }
+
+// TrimPrefixSpace trims the whitespace from the beginning of 's'.
+func TrimPrefixSpace(s string) string {
+	for i, v := range s {
+		if !unicode.IsSpace(v) {
+			return s[i:]
+		}
+	}
+	return ""
+}
+
+// ForEachLine iterates each line within 's' and applies each line to the
+// function 'f' returning the modified string. It is assumed the Unix '\n' is
+// used to delimit all lines.
+func ForEachLine(s string, f func(i int, l string) string) string {
+	lines := strings.Split(s, "\n")
+	for i, l := range lines {
+		lines[i] = f(i, l)
+	}
+	return strings.Join(lines, "\n")
+}

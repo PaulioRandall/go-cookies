@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -73,4 +74,31 @@ func TestIndent(t *testing.T) {
 	assert.Panics(t, func() {
 		Indent(-5, "\t", "Moonglow")
 	})
+}
+
+func TestTrimPrefixSpace(t *testing.T) {
+	assert.Equal(t, "abc", TrimPrefixSpace(" \n\r\t\vabc"))
+	assert.Equal(t, "", TrimPrefixSpace(" \n\r\t\v"))
+	assert.Equal(t, "abc \n\r\t\v", TrimPrefixSpace("abc \n\r\t\v"))
+	assert.Equal(t, "", TrimPrefixSpace(""))
+}
+
+func TestForEachLine(t *testing.T) {
+	a := ForEachLine("a\nb", func(i int, l string) string {
+		switch i {
+		case 0:
+			assert.Equal(t, "a", l)
+		case 1:
+			assert.Equal(t, "b", l)
+		default:
+			assert.Fail(t, "Only expected 2 values")
+		}
+		return fmt.Sprintf("%s%d", l, i)
+	})
+	assert.Equal(t, "a0\nb1", a)
+
+	b := ForEachLine("", func(i int, l string) string {
+		return fmt.Sprintf("%s%d", l, i)
+	})
+	assert.Equal(t, "0", b)
 }
