@@ -27,15 +27,23 @@ func (i *Injector) Inject(filename string, indent int) string {
 	}
 
 	s := string(bytes)
-	lines := strings.Split(s, "\n")
 	prefix := strings.Repeat("\t", indent)
+	return i.forEachToken(s, "\n", func(i int, l string) string {
+		return prefix + l
+	})
+}
 
-	for i, l := range lines {
-		lines[i] = prefix + l
+// ForEachToken applies to each token within 's', that is delimited by 'sep',
+// the function 'f'. The modified string is then returned.
+//
+// 'sep' and tokenisation behave exactly the as if calling
+// 'strings.Split(s, sep)'.
+func (i *Injector) forEachToken(s string, sep string, f func(i int, l string) string) string {
+	tokens := strings.Split(s, sep)
+	for i, l := range tokens {
+		tokens[i] = f(i, l)
 	}
-
-	r := strings.Join(lines, "\n")
-	return r
+	return strings.Join(tokens, sep)
 }
 
 // Compile creates the destination file by copying the template and filling the
