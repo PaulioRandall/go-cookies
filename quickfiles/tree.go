@@ -31,8 +31,9 @@ func (tree Tree) CreateFiles() error {
 	return createFiles(tree.Root, tree.Files)
 }
 
-// createFiles creates the files and directories. Files that already exist are
-// ignored and parent directories are created if they are missing.
+// createFiles creates the files and directories specified within 'files'. Files
+// that already exist are ignored and parent directories are created if they are
+// missing.
 func createFiles(root FilePath, files FileSet) error {
 	err := error(nil)
 	base := string(root)
@@ -46,9 +47,37 @@ func createFiles(root FilePath, files FileSet) error {
 		} else {
 			err = createFile(f, data)
 		}
+
+		if err != nil {
+			return err
+		}
 	}
 
-	return err
+	return nil
+}
+
+// deleteFiles deletes the files and directories specified within 'files'.
+// Note that deleting a directory also deletes its contents.
+func deleteFiles(root FilePath, files FileSet) error {
+	err := error(nil)
+	base := string(root)
+
+	for fp := range files {
+		s := string(fp)
+		f := filepath.Join(base, s)
+
+		if isDir(s) {
+			err = os.RemoveAll(f)
+		} else {
+			err = os.Remove(f)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // createParent creates the parent directory of a file or directory if they
