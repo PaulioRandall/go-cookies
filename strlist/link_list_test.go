@@ -1,4 +1,4 @@
-package msglist
+package strlist
 
 import (
 	"testing"
@@ -7,22 +7,22 @@ import (
 	require "github.com/stretchr/testify/require"
 )
 
-// assertEntries tests that the supplied MsgList contains entries, each
+// assertEntries tests that the supplied StrList contains entries, each
 // with the espected Message, in the order supplied.
-func assertEntries(t *testing.T, ml MsgList, expMsg ...string) {
+func assertEntries(t *testing.T, ml StrList, expStr ...string) {
 
 	require.NotNil(t, ml.Head)
 	require.NotNil(t, ml.Tail)
 
 	n := ml.Head
 
-	for i, v := range expMsg {
+	for i, v := range expStr {
 		if i != 0 {
 			n = n.Next
 			require.NotNil(t, n)
 		}
 
-		assert.Equal(t, v, n.Message)
+		assert.Equal(t, v, n.Value)
 	}
 
 	assert.Nil(t, n.Next)
@@ -32,45 +32,45 @@ func assertEntries(t *testing.T, ml MsgList, expMsg ...string) {
 	for m := ml.Head; m != nil; m = m.Next {
 		size++
 	}
-	assert.Equal(t, len(expMsg), size)
+	assert.Equal(t, len(expStr), size)
 	assert.Equal(t, size, ml.Size)
 }
 
 // ****************************************************************************
-// MsgList.Add()
+// StrList.Add()
 // ****************************************************************************
 
-func TestMsgList_Add_1(t *testing.T) {
-	a := MsgList{}
+func TestStrList_Add_1(t *testing.T) {
+	a := StrList{}
 	a.Add("abc")
 	assertEntries(t, a, "abc")
 }
 
-func TestMsgList_Add_2(t *testing.T) {
-	a := MsgList{}
+func TestStrList_Add_2(t *testing.T) {
+	a := StrList{}
 	a.Add("abc")
 	a.Add("xyz")
 	assertEntries(t, a, "abc", "xyz")
 }
 
 // ****************************************************************************
-// MsgList.ForEach()
+// StrList.ForEach()
 // ****************************************************************************
 
-func TestMsgList_ForEach_1(t *testing.T) {
-	a := MsgList{}
+func TestStrList_ForEach_1(t *testing.T) {
+	a := StrList{}
 	a.Add("abc")
 	a.Add("xyz")
 
 	total := 0
-	a.ForEach(func(i int, m *Msg) {
+	a.ForEach(func(i int, m *Str) {
 		total++
 
 		switch i {
 		case 0:
-			assert.Equal(t, "abc", m.Message)
+			assert.Equal(t, "abc", m.Value)
 		case 1:
-			assert.Equal(t, "xyz", m.Message)
+			assert.Equal(t, "xyz", m.Value)
 		}
 	})
 
@@ -78,45 +78,33 @@ func TestMsgList_ForEach_1(t *testing.T) {
 }
 
 // ****************************************************************************
-// MsgList.String()
+// StrList.String()
 // ****************************************************************************
 
-func TestMsgList_String_1(t *testing.T) {
-	a := MsgList{}
+func TestStrList_String(t *testing.T) {
+	a := StrList{}
 	a.Add("abc")
-
 	s := a.String()
 	assert.Equal(t, "abc", s)
-}
 
-func TestMsgList_String_2(t *testing.T) {
-	a := MsgList{}
-	a.Add("abc")
 	a.Add("efg")
 	a.Add("xyz")
-
-	s := a.String()
+	s = a.String()
 	assert.Equal(t, "abc, efg, xyz", s)
 }
 
 // ****************************************************************************
-// MsgList.Slice()
+// StrList.Slice()
 // ****************************************************************************
 
-func TestMsgList_Slice_1(t *testing.T) {
-	a := MsgList{}
+func TestStrList_Slice(t *testing.T) {
+	a := StrList{}
 	a.Add("abc")
-
 	s := a.Slice()
 	assert.Equal(t, []string{"abc"}, s)
-}
 
-func TestMsgList_Slice_2(t *testing.T) {
-	a := MsgList{}
-	a.Add("abc")
 	a.Add("efg")
 	a.Add("xyz")
-
-	s := a.Slice()
+	s = a.Slice()
 	assert.Equal(t, []string{"abc", "efg", "xyz"}, s)
 }
