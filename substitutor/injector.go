@@ -1,4 +1,4 @@
-package injector
+package substitutor
 
 import (
 	"io/ioutil"

@@ -1,14 +1,13 @@
-package injector
+package substitutor
 
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	assert "github.com/stretchr/testify/assert"
 	require "github.com/stretchr/testify/require"
-
-	q "github.com/PaulioRandall/go-cookies/quickfiles"
 )
 
 func randomDir(t *testing.T) string {
@@ -20,6 +19,17 @@ func randomDir(t *testing.T) string {
 func removeDir(t *testing.T, dir string) {
 	err := os.RemoveAll(dir)
 	require.Nil(t, err)
+}
+
+func createTestFile(f string, data string) error {
+	s := filepath.Dir(f)
+	err := os.MkdirAll(s, 0774)
+	if err != nil {
+		return err
+	}
+
+	b := []byte(data)
+	return ioutil.WriteFile(f, b, 0774)
 }
 
 const abc = `"abc": {
@@ -43,16 +53,9 @@ func TestCompile(t *testing.T) {
 	n := randomDir(t)
 	defer removeDir(t, n)
 
-	tree := q.Tree{
-		Root: q.FilePath(n),
-		Files: map[q.FilePath]q.FileData{
-			"abc.json":        abc,
-			"nested/xyz.json": xyz,
-			"template":        tmp,
-		},
-	}
-
-	tree.CreateFiles()
+	require.Nil(t, createTestFile(n+"/abc.json", abc))
+	require.Nil(t, createTestFile(n+"/nested/xyz.json", xyz))
+	require.Nil(t, createTestFile(n+"/template", tmp))
 
 	inj := Injector{
 		Template:  n + "/template",
