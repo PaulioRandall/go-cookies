@@ -8,18 +8,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// requireTempDir creates a temporary directory using 'ioutil.TempDir()' and
-// returns the path to it. If there is an error the test will fail and
-// immediately exit.
-func requireTempDir(t *testing.T) string {
-	f, err := ioutil.TempDir(".", "")
-	require.Nil(t, err)
-	return f
+// RequireFile asserts that a file exists and that it has the expected content.
+func RequireFile(t *testing.T, f string, exp string) {
+	require.FileExists(t, f)
+
+	bytes, err := ioutil.ReadFile(f)
+
+	if err != nil {
+		pre := "'" + f + "' "
+		require.Fail(t, pre+"Unable to determine if exists")
+		return
+	}
+
+	act := string(bytes)
+	require.Equal(t, exp, act)
 }
 
-// requireRemoveDir removes a directory using 'os.RemoveAll()'. If there is an
-// error the test will fail and immediately exit.
-func requireRemoveDir(t *testing.T, dir string) {
-	err := os.RemoveAll(dir)
-	require.Nil(t, err)
+// RequireNotExists asserts that a file or directory does NOT exist.
+func RequireNotExists(t *testing.T, f string) {
+	_, err := os.Stat(f)
+	pre := "'" + f + "' "
+
+	if err == nil {
+		require.Fail(t, pre+"Should NOT exist")
+		return
+	}
+
+	require.True(t, os.IsNotExist(err), pre+"Unable to determine if exists")
 }

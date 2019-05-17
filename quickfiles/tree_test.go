@@ -22,43 +22,6 @@ func removeDir(t *testing.T, dir string) {
 	require.Nil(t, err)
 }
 
-func requireDirExists(t *testing.T, dir string) {
-	_, err := ioutil.ReadDir(dir)
-
-	switch {
-	case err == nil:
-	case os.IsNotExist(err):
-		assert.FailNow(t, dir+"/ was expected but does not exist")
-	default:
-		assert.FailNow(t, dir+"/ was expected but it's not there or could not be accessed")
-	}
-}
-
-func assertFileExists(t *testing.T, f string, exp string) {
-	bytes, err := ioutil.ReadFile(f)
-	act := string(bytes)
-
-	switch {
-	case err == nil:
-		assert.Equal(t, exp, act)
-	case os.IsNotExist(err):
-		assert.Fail(t, f+" was expected but does not exist")
-	default:
-		assert.Fail(t, f+" was expected but find, access, or open")
-	}
-}
-
-func assertNotExists(t *testing.T, f string) {
-	_, err := os.Stat(f)
-	switch {
-	case err == nil:
-		assert.Fail(t, "File or directory still exists")
-	case os.IsNotExist(err):
-	default:
-		assert.Fail(t, "File or directory existence could not be checked")
-	}
-}
-
 func createTestFile(f string) error {
 	s := filepath.Dir(f)
 	err := os.MkdirAll(s, 0774)
@@ -70,6 +33,33 @@ func createTestFile(f string) error {
 	return ioutil.WriteFile(f, b, 0774)
 }
 
+func AssertFile(t *testing.T, f string, exp string) {
+	assert.FileExists(t, f)
+
+	bytes, err := ioutil.ReadFile(f)
+
+	if err != nil {
+		pre := "'" + f + "' "
+		assert.Fail(t, pre+"Unable to determine if exists")
+		return
+	}
+
+	act := string(bytes)
+	assert.Equal(t, exp, act)
+}
+
+func AssertNotExists(t *testing.T, f string) {
+	_, err := os.Stat(f)
+	pre := "'" + f + "' "
+
+	if err == nil {
+		assert.Fail(t, pre+"File or directory still exists")
+		return
+	}
+
+	assert.True(t, os.IsNotExist(err), pre+"Unable to determine if exists")
+}
+
 // ****************************************************************************
 // Tests start here!
 // ****************************************************************************
@@ -79,7 +69,7 @@ func TestCreateParent(t *testing.T) {
 
 	err := createParent(n + "/parent/file.txt")
 	require.Nil(t, err)
-	requireDirExists(t, n+"/parent")
+	require.DirExists(t, n+"/parent")
 }
 
 func TestCreateDir(t *testing.T) {
@@ -88,7 +78,7 @@ func TestCreateDir(t *testing.T) {
 
 	err := createDir(n)
 	require.Nil(t, err)
-	requireDirExists(t, n)
+	require.DirExists(t, n)
 }
 
 func TestCreateFile(t *testing.T) {
@@ -101,7 +91,7 @@ func TestCreateFile(t *testing.T) {
 
 	err := createFile(f, data)
 	require.Nil(t, err)
-	assertFileExists(t, f, d)
+	AssertFile(t, f, d)
 }
 
 func TestIsDir(t *testing.T) {
@@ -129,12 +119,12 @@ func TestCreateFiles(t *testing.T) {
 	err := createFiles(tree.Root, tree.Files)
 	require.Nil(t, err)
 
-	requireDirExists(t, n+"/temp")
-	assertFileExists(t, n+"/temp/abc.txt", "Weatherwax")
-	assertFileExists(t, n+"/temp/xyz.txt", "Ogg")
-	requireDirExists(t, n+"/temp/nested")
-	assertFileExists(t, n+"/temp/nested/abc.txt", "Garlick")
-	requireDirExists(t, n+"/empty")
+	require.DirExists(t, n+"/temp")
+	AssertFile(t, n+"/temp/abc.txt", "Weatherwax")
+	AssertFile(t, n+"/temp/xyz.txt", "Ogg")
+	require.DirExists(t, n+"/temp/nested")
+	AssertFile(t, n+"/temp/nested/abc.txt", "Garlick")
+	require.DirExists(t, n+"/empty")
 }
 
 func TestDeleteFiles(t *testing.T) {
@@ -159,10 +149,10 @@ func TestDeleteFiles(t *testing.T) {
 	err := deleteFiles(tree.Root, tree.Files)
 	require.Nil(t, err)
 
-	requireDirExists(t, n+"/temp")
-	assertNotExists(t, n+"/temp/abc.txt")
-	assertFileExists(t, n+"/temp/xyz.txt", "")
-	requireDirExists(t, n+"/temp/nested")
-	assertNotExists(t, n+"/temp/nested/abc.txt")
-	assertNotExists(t, n+"/empty")
+	require.DirExists(t, n+"/temp")
+	AssertNotExists(t, n+"/temp/abc.txt")
+	AssertFile(t, n+"/temp/xyz.txt", "")
+	require.DirExists(t, n+"/temp/nested")
+	AssertNotExists(t, n+"/temp/nested/abc.txt")
+	AssertNotExists(t, n+"/empty")
 }

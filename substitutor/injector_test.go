@@ -65,6 +65,7 @@ func TestCompile(t *testing.T) {
 	out := n + "/output"
 	err := inj.Compile(out)
 	require.Nil(t, err)
+	require.FileExists(t, out)
 
 	exp := `{
 		"abc": {
