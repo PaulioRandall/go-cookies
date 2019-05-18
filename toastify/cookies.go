@@ -8,8 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TempDir creates a temporary directory using 'ioutil.TempDir()' and returns
-// the path to it. If there is an error the test will fail and immediately exit.
+// TempDir creates a temporary directory in the current working directory using
+// 'ioutil.TempDir()' and returns the path to it. If there is an error the test
+// will fail and immediately exit.
 func TempDir(t *testing.T) string {
 	f, err := ioutil.TempDir(".", "")
 	require.Nil(t, err)

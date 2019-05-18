@@ -15,9 +15,7 @@ func RequireFile(t *testing.T, f string, exp string) {
 	bytes, err := ioutil.ReadFile(f)
 
 	if err != nil {
-		pre := "'" + f + "' "
-		require.Fail(t, pre+"Unable to determine if exists")
-		return
+		require.Fail(t, "Unable to read "+f)
 	}
 
 	act := string(bytes)
@@ -27,12 +25,10 @@ func RequireFile(t *testing.T, f string, exp string) {
 // RequireNotExists asserts that a file or directory does NOT exist.
 func RequireNotExists(t *testing.T, f string) {
 	_, err := os.Stat(f)
-	pre := "'" + f + "' "
 
 	if err == nil {
-		require.Fail(t, pre+"Should NOT exist")
-		return
+		require.Fail(t, "File or directory should NOT exist "+f)
 	}
 
-	require.True(t, os.IsNotExist(err), pre+"Unable to determine if exists")
+	require.True(t, os.IsNotExist(err), "Unable to determine if exists "+f)
 }
