@@ -26,33 +26,6 @@ func AssertFile(t *testing.T, f string, exp string) bool {
 	return assert.Equal(t, exp, act)
 }
 
-// assertDir asserts that a directory 'dir' exists and contains the expected
-// 'filenames'. Returns the list of files within the directory and a bool which
-// is true if all assertions passed.
-func assertDir(t *testing.T, dir string, filenames []string) ([]os.FileInfo, bool) {
-	ok := assert.DirExists(t, dir)
-	if !ok {
-		return nil, false
-	}
-
-	files, err := ioutil.ReadDir(dir)
-	if err != nil {
-		assert.Fail(t, "Unable to read directory "+dir)
-		return nil, false
-	}
-
-	m := make([]string, len(files))
-	for i, f := range files {
-		m[i] = f.Name()
-	}
-
-	for _, fn := range filenames {
-		ok = ok && assert.Contains(t, m, fn)
-	}
-
-	return files, ok
-}
-
 // AssertDir asserts that a directory 'dir' exists and contains the expected
 // 'filenames'. Returns true if all assertions passed.
 func AssertDir(t *testing.T, dir string, filenames []string) bool {
@@ -81,4 +54,31 @@ func AssertNotExists(t *testing.T, f string) bool {
 	}
 
 	return assert.True(t, os.IsNotExist(err), pre+"Unable to determine if exists")
+}
+
+// assertDir asserts that a directory 'dir' exists and contains the expected
+// 'filenames'. Returns the list of files within the directory and a bool which
+// is true if all assertions passed.
+func assertDir(t *testing.T, dir string, filenames []string) ([]os.FileInfo, bool) {
+	ok := assert.DirExists(t, dir)
+	if !ok {
+		return nil, false
+	}
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		assert.Fail(t, "Unable to read directory "+dir)
+		return nil, false
+	}
+
+	m := make([]string, len(files))
+	for i, f := range files {
+		m[i] = f.Name()
+	}
+
+	for _, fn := range filenames {
+		ok = ok && assert.Contains(t, m, fn)
+	}
+
+	return files, ok
 }
