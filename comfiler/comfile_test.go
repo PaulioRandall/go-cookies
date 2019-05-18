@@ -1,4 +1,4 @@
-package substitutor
+package comfiler
 
 import (
 	"io/ioutil"
@@ -57,13 +57,13 @@ func TestCompile(t *testing.T) {
 	require.Nil(t, createTestFile(n+"/nested/xyz.json", xyz))
 	require.Nil(t, createTestFile(n+"/template", tmp))
 
-	inj := Injector{
+	com := Comfile{
 		Template:  n + "/template",
 		Resources: n,
 	}
 
 	out := n + "/output"
-	err := inj.Compile(out)
+	err := com.Compile(out)
 	require.Nil(t, err)
 	require.FileExists(t, out)
 

@@ -1,4 +1,4 @@
-package substitutor
+package comfiler
 
 import (
 	"io/ioutil"
@@ -7,8 +7,8 @@ import (
 	"text/template"
 )
 
-// Injector represents a single template along with resources to populate it.
-type Injector struct {
+// Comfile represents a single template along with resources to populate it.
+type Comfile struct {
 	Template  string // Path to the template file
 	Resources string // Path to the root folder of injectable resources
 }
@@ -19,20 +19,20 @@ type Injector struct {
 // It takes a 'filename' that is relative to the Resources directory and returns
 // its content with each line indented with 'n' tabs. This is used within the
 // Template to replace placeholders with some content.
-func (inj *Injector) Inject(filename string, n int) string {
-	path := inj.Resources + filename
+func (com *Comfile) Inject(filename string, n int) string {
+	path := com.Resources + filename
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
 
 	s := string(bytes)
-	return inj.indentEachLine(s, n, "\t")
+	return com.indentEachLine(s, n, "\t")
 }
 
 // indentEachLine indents each line of 's' with 'n' instances of 'p'. The
-//  modified string is then returned. Unix newline '\n' is assumed.
-func (inj *Injector) indentEachLine(s string, n int, p string) string {
+// modified string is then returned. Unix newline '\n' is assumed.
+func (com *Comfile) indentEachLine(s string, n int, p string) string {
 	prefix := strings.Repeat(p, n)
 	lines := strings.Split(s, "\n")
 	for i, l := range lines {
@@ -43,11 +43,11 @@ func (inj *Injector) indentEachLine(s string, n int, p string) string {
 
 // Compile creates the destination file by copying the template and filling the
 // placeholders. Placeholders are relative references to files within the
-// Template.Resources directory.
-func (inj *Injector) Compile(dst string) error {
+// the resources directory.
+func (com *Comfile) Compile(dst string) error {
 	var err error
 
-	t, err := template.ParseFiles(inj.Template)
+	t, err := template.ParseFiles(com.Template)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (inj *Injector) Compile(dst string) error {
 	}
 	defer f.Close()
 
-	err = t.Execute(f, inj)
+	err = t.Execute(f, com)
 	if err != nil {
 		os.Remove(f.Name())
 		return err
