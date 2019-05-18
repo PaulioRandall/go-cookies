@@ -3,6 +3,7 @@ package cookies
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -104,4 +105,26 @@ func TestForEachToken(t *testing.T) {
 
 	c := ForEachToken("ab", "", f)
 	assert.Equal(t, "a0b1", c)
+}
+
+func TestMapStrings(t *testing.T) {
+	f := func(i int, s string) (string, string) {
+		switch i {
+		case 0:
+			assert.Equal(t, "a", s)
+		case 1:
+			assert.Equal(t, "b", s)
+		default:
+			assert.Fail(t, "Only expected 2 items at most")
+		}
+		return s, strconv.Itoa(i)
+	}
+
+	aAct := MapStrings([]string{"a", "b"}, f)
+	aExp := map[string]string{"a": "0", "b": "1"}
+	assert.Equal(t, aExp, aAct)
+
+	bAct := MapStrings([]string{"a"}, f)
+	bExp := map[string]string{"a": "0"}
+	assert.Equal(t, bExp, bAct)
 }

@@ -100,15 +100,34 @@ func TrimPrefixSpace(s string) string {
 	return ""
 }
 
+// StrItemMapper is a function that maps a slice or list value to a another
+// string.
+type StrItemMapper func(int, string) string
+
 // ForEachToken applies to each token within 's', that is delimited by 'sep',
 // the function 'f'. The modified string is then returned.
 //
 // 'sep' and tokenisation behave exactly the as if calling
 // 'strings.Split(s, sep)'.
-func ForEachToken(s string, sep string, f func(i int, l string) string) string {
+func ForEachToken(s string, sep string, f StrItemMapper) string {
 	tokens := strings.Split(s, sep)
 	for i, l := range tokens {
 		tokens[i] = f(i, l)
 	}
 	return strings.Join(tokens, sep)
+}
+
+// StrEntryMapper is a function that maps a slice or list value to a key value
+// pair.
+type StrEntryMapper func(int, string) (string, string)
+
+// MapStrings creates a 'map[string]string' from 'slice' by running each item
+// through 'f'.
+func MapStrings(slice []string, f StrEntryMapper) map[string]string {
+	m := make(map[string]string, len(slice))
+	for i, s := range slice {
+		k, v := f(i, s)
+		m[k] = v
+	}
+	return m
 }
