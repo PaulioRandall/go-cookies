@@ -40,8 +40,11 @@ func (ml *StrList) Add(s string) {
 	ml.Size++
 }
 
+// StrConsumer is function that consumes a string from a list.
+type StrComsumer func(int, *Str)
+
 // ForEach applies the function to each string in the list.
-func (ml *StrList) ForEach(f func(i int, s *Str)) {
+func (ml *StrList) ForEach(f StrComsumer) {
 	s := ml.Head
 	for i := 0; i < ml.Size; i++ {
 		f(i, s)
