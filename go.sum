@@ -1,5 +1,10 @@
+github.com/PaulioRandall/go-cookies v0.0.0-20190518111920-106dd47ccd11/go.mod h1:81mrpdCA0yhpSw/s0WooO/4aYQbSFA+s2XvxvD/9oDA=
+github.com/PaulioRandall/go-qlueless-api v0.0.0-20190519123021-e9f908d0bc56 h1:8XODK8hsdLXVgTsTmuF9b0Gic/vUkjejUKlvmtcO2PU=
+github.com/PaulioRandall/go-qlueless-api v0.0.0-20190519123021-e9f908d0bc56/go.mod h1:bfwxREzeil0CFIL4t5ZlfSQhnatnlOHZRoOxftMeKOQ=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/mattn/go-sqlite3 v1.10.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
+github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
