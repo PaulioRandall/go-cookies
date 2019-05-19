@@ -33,10 +33,10 @@ func AssertDir(t *testing.T, dir string, filenames []string) bool {
 	return ok
 }
 
-// AssertStrictDir asserts that a directory 'dir' exists and contains the
+// AssertExactDir asserts that a directory 'dir' exists and contains the
 // expected 'filenames' and no other files. Returns true if all assertions
 // passed.
-func AssertStrictDir(t *testing.T, dir string, filenames []string) bool {
+func AssertExactDir(t *testing.T, dir string, filenames []string) bool {
 	files, ok := assertDir(t, dir, filenames)
 	ok = ok && assert.Equal(t, len(filenames), len(files))
 	return ok
