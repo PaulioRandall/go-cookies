@@ -1,0 +1,6 @@
+#!/bin/bash
+
+tabs -2
+clear
+
+go run godo.go $@

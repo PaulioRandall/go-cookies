@@ -1,8 +1,10 @@
-package godo
+package gobuild
 
 import (
 	"os"
 	"os/exec"
+
+	"github.com/PaulioRandall/go-cookies/cookies"
 )
 
 // Go represents a wrapper to the Go compiler. Functionality is provided for
@@ -21,12 +23,13 @@ func NewGo(workDir string) (Go, error) {
 
 	if g.WorkDir == "" {
 		if g.WorkDir, e = os.Getwd(); e != nil {
-			return Go{}, Wrap(e, "Unable to identify current working directory")
+			return Go{}, cookies.Wrap(e,
+				"Unable to identify current working directory")
 		}
 	}
 
 	if g.Path, e = exec.LookPath("go"); e != nil {
-		return Go{}, Wrap(e,
+		return Go{}, cookies.Wrap(e,
 			"Can't find compiler. Is it installed? Environment variables set?")
 	}
 	return g, nil
@@ -76,7 +79,7 @@ func (g Go) TestAll(timeout string) error {
 
 func (g Go) run(cmd *exec.Cmd, errMsg string) error {
 	if e := cmd.Run(); e != nil {
-		return Wrap(e, "Execution failed")
+		return cookies.Wrap(e, "Execution failed")
 	}
 	return nil
 }

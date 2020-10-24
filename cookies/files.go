@@ -1,23 +1,23 @@
-package godo
+package cookies
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"syscall"
-	//"path/filepath"
 	"io"
+	"io/ioutil"
+	"os"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
 
-const (
-	EXIT_OK  = 0 // Zero exit code
-	EXIT_BAD = 1 // General error exit code
-)
-
 // WorkDirStack is the working directory stack used by Pushd and Popd functions.
 var WorkDirStack = []string{}
+
+// Wrap wraps an error 'e' with a another message 'm'.
+func Wrap(e error, m string, args ...interface{}) error {
+	m = fmt.Sprintf(m, args...)
+	return errors.Wrap(e, m)
+}
 
 // CD is an alias for os.Chdir.
 func CD(dir string) error {
@@ -48,24 +48,6 @@ func Popd() error {
 	return nil
 }
 
-// Wrap wraps an error 'e' with a another message 'm'.
-func Wrap(e error, m string, args ...interface{}) error {
-	m = fmt.Sprintf(m, args...)
-	return errors.Wrap(e, m)
-}
-
-// Panik prints the error before exiting with code 1. It does not generate a Go
-// panic but simulates one without propagation or printing the call stack, sorry
-// for any confusion. Wraps 'e' with another error containing the format
-// message 'm' if 'm' is not empty.
-func Panik(e error, m string, args ...interface{}) {
-	if m != "" {
-		e = Wrap(e, m, args...)
-	}
-	fmt.Fprintf(os.Stderr, "%+v\n", e)
-	os.Exit(1)
-}
-
 // RemoveDir recursively removes directory 'dir'. If something was removed then
 // true is returned rather than an error.
 func RemoveDir(dir string) (bool, error) {
@@ -82,7 +64,7 @@ func RemoveDir(dir string) (bool, error) {
 }
 
 // FileExists returns true if the file exists, false if not, and an error if
-// file existence could not be determined. 
+// file existence could not be determined.
 func FileExists(f string) (bool, error) {
 	_, e := os.Stat(f)
 	if os.IsNotExist(e) {
@@ -151,41 +133,10 @@ func CopyFile(src, dst string, overwrite bool) error {
 
 	same, e := SameFile(src, dst)
 	if e == nil && same {
-		return fmt.Errorf("Destination is the same as source: %s == %s", dst, src)	
+		return fmt.Errorf("Destination is the same as source: %s == %s", dst, src)
 	}
 
 	return NoCheckCopyFile(src, dst)
-}
-
-// Run runs the executable at 'exePath'. Setting the 'workDir' as empty will
-// use the default as specified by functions that accept exec.Cmd. EXIT_OK is
-// returned on successful execution otherwise EXIT_BAD or another non-zero
-// exit code is returned.
-func Run(exePath string, workDir string, args ...string) (int, error) {
-
-	var e error
-
-	cmd := exec.Command(exePath, args...)
-	cmd.Dir = workDir
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if e := cmd.Start(); e != nil {
-		return EXIT_BAD, e
-	}
-
-	if e = cmd.Wait(); e == nil {
-		return EXIT_OK, nil
-	}
-
-	if exitErr, ok := e.(*exec.ExitError); ok {
-		if stat, ok := exitErr.Sys().(syscall.WaitStatus); ok {
-			return stat.ExitStatus(), e
-		}
-	}
-
-	return EXIT_BAD, e
 }
 
 // NoCheckCopyFile copies the single file 'src' to 'dst' and doesn't make any
@@ -210,4 +161,15 @@ func NoCheckCopyFile(src, dst string) error {
 	}
 
 	return nil
-} 
+}
+
+// FileToQuote returns the bytes of the input file as as a quoted string so it
+// may be embedded in source code. Use []byte(quotedString) to decode.
+func FileToQuote(file string) (string, error) {
+	b, e := ioutil.ReadFile(file)
+	if e != nil {
+		return "", e
+	}
+	s := strconv.Quote(string(b))
+	return s, nil
+}

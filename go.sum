@@ -1,3 +1,6 @@
+github.com/PaulioRandall/godo v0.0.0-20201023154025-c81aaa3aeaf5/go.mod h1:HbLrBPCmUIZNyZxCHDBzbBnQXC279/CtSdKt34MrC3Y=
+github.com/PaulioRandall/godo-example v0.0.0-20201023164800-d689b22740ff h1:v8Nc5an8h50GQK6Znp/o7M6wU43mS1nb9oWSytUVxfw=
+github.com/PaulioRandall/godo-example v0.0.0-20201023164800-d689b22740ff/go.mod h1:CehxmINNBpqDzb04K0qL/LzNKHRF0RV2g8TOarvTWm4=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

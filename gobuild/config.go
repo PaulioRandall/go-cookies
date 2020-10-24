@@ -1,9 +1,11 @@
-package godo
+package gobuild
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/PaulioRandall/go-cookies/cookies"
 )
 
 type Config struct {
@@ -23,13 +25,22 @@ func (c Config) Godo() (int, error) {
 		return EXIT_BAD, fmt.Errorf("Missing command")
 	}
 
+	try := func(funcs ...func() error) error {
+		for _, f := range funcs {
+			if e := f(); e != nil {
+				return e
+			}
+		}
+		return nil
+	}
+
 	switch cmd := os.Args[1]; cmd {
 	case "help":
 		fmt.Println(c.Usage)
 		return EXIT_OK, nil
 
 	case "clean":
-		if _, e := RemoveDir(c.BuildDir); e != nil {
+		if _, e := cookies.RemoveDir(c.BuildDir); e != nil {
 			return EXIT_BAD, e
 		}
 		return EXIT_BAD, nil
@@ -58,11 +69,11 @@ func (c Config) Godo() (int, error) {
 }
 
 func (c *Config) Setup() error {
-	if _, e := RemoveDir(c.BuildDir); e != nil {
+	if _, e := cookies.RemoveDir(c.BuildDir); e != nil {
 		return e
 	}
 	if e := os.MkdirAll(c.BuildDir, c.BuildPerm); e != nil {
-		return Wrap(e, "Failed to create build directory %s", c.BuildDir)
+		return cookies.Wrap(e, "Failed to create build directory %s", c.BuildDir)
 	}
 	return nil
 }
@@ -72,7 +83,7 @@ func (c Config) Help() {
 }
 
 func (c Config) Clean() error {
-	_, e := RemoveDir(c.BuildDir)
+	_, e := cookies.RemoveDir(c.BuildDir)
 	return e
 }
 
@@ -104,16 +115,7 @@ func (c Config) Run(args ...string) (int, error) {
 	var e error
 	exePath := filepath.Join(c.BuildDir, c.ExeFile)
 	if exePath, e = filepath.Abs(exePath); e != nil {
-		return EXIT_BAD, Wrap(e, "Couldn't find %s", exePath)
+		return EXIT_BAD, cookies.Wrap(e, "Couldn't find %s", exePath)
 	}
 	return Run(exePath, c.BuildDir, args...)
-}
-
-func try(funcs ...func() error) error {
-	for _, f := range funcs {
-		if e := f(); e != nil {
-			return e
-		}
-	}
-	return nil
 }
