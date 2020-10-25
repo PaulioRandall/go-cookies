@@ -13,16 +13,16 @@ type FilePath string
 // FileData represents the data within a file or to populate a file.
 type FileData string
 
-// FileSet represents the files and directories in a file tree with some
+// FileTree represents the files and directories in a file tree with some
 // content to populate them (files only). A FilePath ending in '/' indicates a
 // directory.
-type FileSet map[FilePath]FileData
+type FileTree map[FilePath]FileData
 
 // Tree represents the root directory of a tree whereby the name is absolute or
 // relative to the working directory.
 type Tree struct {
 	Root  FilePath
-	Files FileSet
+	Files FileTree
 }
 
 // CreateFiles creates the files and directories. Files that already exist are
@@ -34,7 +34,7 @@ func (tree Tree) CreateFiles() error {
 // createFiles creates the files and directories specified within 'files'. Files
 // that already exist are ignored and parent directories are created if they are
 // missing.
-func createFiles(root FilePath, files FileSet) error {
+func createFiles(root FilePath, files FileTree) error {
 	err := error(nil)
 	base := string(root)
 
@@ -58,7 +58,7 @@ func createFiles(root FilePath, files FileSet) error {
 
 // deleteFiles deletes the files and directories specified within 'files'.
 // Note that deleting a directory also deletes its contents.
-func deleteFiles(root FilePath, files FileSet) error {
+func deleteFiles(root FilePath, files FileTree) error {
 	err := error(nil)
 	base := string(root)
 

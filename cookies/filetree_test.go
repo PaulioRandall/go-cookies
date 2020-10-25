@@ -1,4 +1,4 @@
-package quickfiles
+package cookies
 
 import (
 	"fmt"
@@ -7,9 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	assert "github.com/stretchr/testify/assert"
-	require "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// TODO: Simplify and clean up
 
 func randomDir(t *testing.T) string {
 	f, err := ioutil.TempDir(".", "")
@@ -105,13 +107,13 @@ func TestCreateFiles(t *testing.T) {
 	n := randomDir(t)
 	defer removeDir(t, n)
 
-	tree := Tree{
+	tree := FileTree{
 		Root: FilePath(n),
 		Files: map[FilePath]FileData{
-			"temp/abc.txt":        "Weatherwax",
-			"temp/xyz.txt":        "Ogg",
-			"temp/nested/abc.txt": "Garlick",
-			"empty/":              "",
+			"temp/abc.txt":        []byte("Weatherwax"),
+			"temp/xyz.txt":        []byte("Ogg"),
+			"temp/nested/abc.txt": []byte("Garlick"),
+			"empty/":              nil,
 		},
 	}
 
@@ -136,12 +138,12 @@ func TestDeleteFiles(t *testing.T) {
 	require.Nil(t, createTestFile(n+"/temp/nested/abc.txt"))
 	require.Nil(t, os.MkdirAll(n+"/empty/", 0774))
 
-	tree := Tree{
+	tree := FileTree{
 		Root: FilePath(n),
 		Files: map[FilePath]FileData{
-			"temp/abc.txt":        "",
-			"temp/nested/abc.txt": "",
-			"empty/":              "",
+			"temp/abc.txt":        nil,
+			"temp/nested/abc.txt": nil,
+			"empty/":              nil,
 		},
 	}
 

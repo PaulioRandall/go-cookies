@@ -6,25 +6,18 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
-// WorkDirStack is the working directory stack used by Pushd and Popd functions.
-var WorkDirStack = []string{}
+// WorkDirHistory is the working directory stack used by Pushd and Popd
+// functions.
+var WorkDirHistory = []string{}
 
-// Wrap wraps an error 'e' with a another message 'm'.
-func Wrap(e error, m string, args ...interface{}) error {
-	m = fmt.Sprintf(m, args...)
-	return errors.Wrap(e, m)
-}
-
-// CD is an alias for os.Chdir.
+// CD emulates cd bash command, it's just an alias for os.Chdir.
 func CD(dir string) error {
 	return os.Chdir(dir)
 }
 
-// Pushd emulates pushd bash functionality.
+// Pushd emulates pushd bash command.
 func Pushd(dir string) error {
 	curr, e := os.Getwd()
 	if e != nil {
@@ -33,18 +26,18 @@ func Pushd(dir string) error {
 	if e = os.Chdir(dir); e != nil {
 		return e
 	}
-	WorkDirStack = append(WorkDirStack, curr)
+	WorkDirHistory = append(WorkDirHistory, curr)
 	return nil
 }
 
-// Popd emulates the popd bash functionality.
+// Popd emulates the popd bash command.
 func Popd() error {
-	last := len(WorkDirStack) - 1
-	dir := WorkDirStack[last]
+	last := len(WorkDirHistory) - 1
+	dir := WorkDirHistory[last]
 	if e := os.Chdir(dir); e != nil {
 		return e
 	}
-	WorkDirStack = WorkDirStack[:last]
+	WorkDirHistory = WorkDirHistory[:last]
 	return nil
 }
 
@@ -70,7 +63,7 @@ func FileExists(f string) (bool, error) {
 	if os.IsNotExist(e) {
 		return false, nil
 	}
-	return e == nil, e
+	return true, e
 }
 
 // IsDir returns true if the file exists and is a directory. An error is

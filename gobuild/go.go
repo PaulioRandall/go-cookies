@@ -51,12 +51,12 @@ func (g Go) Build(dir, flags, pkg string) error {
 	} else {
 		cmd = g.NewCmd("build", "-o", dir, flags, pkg)
 	}
-	return g.run(cmd, "Build failed")
+	return run(cmd, "Build failed")
 }
 
 func (g Go) Fmt(pkg string) error {
 	cmd := g.NewCmd("fmt", pkg)
-	return g.run(cmd, "Format failed")
+	return run(cmd, "Format failed")
 }
 
 func (g Go) FmtAll() error {
@@ -70,14 +70,14 @@ func (g Go) Test(pkg string, timeout string) error {
 	} else {
 		cmd = g.NewCmd("test", pkg, "-timeout", timeout)
 	}
-	return g.run(cmd, "Testing error")
+	return run(cmd, "Testing error")
 }
 
 func (g Go) TestAll(timeout string) error {
 	return g.Test("./...", timeout)
 }
 
-func (g Go) run(cmd *exec.Cmd, errMsg string) error {
+func run(cmd *exec.Cmd, errMsg string) error {
 	if e := cmd.Run(); e != nil {
 		return cookies.Wrap(e, "Execution failed")
 	}
