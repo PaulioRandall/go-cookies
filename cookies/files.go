@@ -5,7 +5,9 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 // WorkDirHistory is the working directory stack used by Pushd and Popd
@@ -75,7 +77,7 @@ func IsRegFile(f string) (bool, error) {
 	return stat.Mode().IsRegular(), nil
 }
 
-// SameFile returns true if the two files 'a' and 'b' describe the same files
+// SameFile returns true if the two files 'a' and 'b' describe the same file
 // as determined by os.SameFile. An error is returned if the file info could
 // not be retreived for either file.
 func SameFile(a, b string) (bool, error) {
@@ -148,4 +150,43 @@ func FileToQuote(file string) (string, error) {
 	}
 	s := strconv.Quote(string(b))
 	return s, nil
+}
+
+// CreateFiles creates the files and directories within 'files' with 'root' as
+// the root directory. 'files' contains a set of relative file paths mapped to
+// the their required content. If the file is a directory it must be suffixed
+// with a '/' and the mapped data will be ignored.
+func CreateFiles(root string, mode os.FileMode, files map[string][]byte) error {
+
+	createFile := func(f string, data []byte) error {
+		parent := filepath.Dir(f)
+		if e := os.MkdirAll(parent, mode); e != nil { // Create parents if missing
+			return e
+		}
+		return ioutil.WriteFile(f, data, mode)
+	}
+
+	createDir := func(d string) error {
+		if exists, e := FileExists(d); e != nil || exists {
+			return e
+		}
+		return os.MkdirAll(d, mode)
+	}
+
+	for p, data := range files {
+		f := filepath.Join(root, p)
+
+		if strings.HasSuffix(p, "/") {
+			if e := createDir(f); e != nil {
+				return e
+			}
+			continue
+		}
+
+		if e := createFile(f, data); e != nil {
+			return e
+		}
+	}
+
+	return nil
 }

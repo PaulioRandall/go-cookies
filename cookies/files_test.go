@@ -36,14 +36,29 @@ func endFileTest(home, temp string) {
 	}
 }
 
+func requireFile(t *testing.T, f string, exp string) {
+	require.FileExists(t, f)
+	bytes, e := ioutil.ReadFile(f)
+	require.Nil(t, e, "%+v", e)
+	require.Equal(t, exp, string(bytes))
+}
+
+func requireNotExists(t *testing.T, f string) {
+	_, e := os.Stat(f)
+	require.NotNil(t, e, "File still exists: %s", f)
+	require.True(t, os.IsNotExist(e), "File still exists: %s", f)
+}
+
 func TestPushd_AND_Popd(t *testing.T) {
 	home, temp := startFileTest()
 	defer endFileTest(home, temp)
 
-	checkErr := func(e error) {
+	tempDir := func(dir string) string {
+		r, e := ioutil.TempDir(temp, dir)
 		if e != nil {
 			panic(e)
 		}
+		return r
 	}
 
 	requireHistory := func(exps ...string) {
@@ -53,18 +68,15 @@ func TestPushd_AND_Popd(t *testing.T) {
 		}
 	}
 
-	a, e := ioutil.TempDir(temp, "a")
-	checkErr(e)
+	a := tempDir("a")
 	require.Nil(t, Pushd(a))
 	requireHistory(temp)
 
-	b, e := ioutil.TempDir(a, "b")
-	checkErr(e)
+	b := tempDir("b")
 	require.Nil(t, Pushd(b))
 	requireHistory(temp, a)
 
-	c, e := ioutil.TempDir(a, "c")
-	checkErr(e)
+	c := tempDir("c")
 	require.Nil(t, Pushd(c))
 	requireHistory(temp, a, b)
 
@@ -98,4 +110,23 @@ func TestFileToQuote(t *testing.T) {
 	exp := []byte("\"What you see is all there is.\"")
 	act := []byte(a)
 	require.Equal(t, exp, act)
+}
+
+func TestCreateFiles(t *testing.T) {
+	home, temp := startFileTest()
+	defer endFileTest(home, temp)
+
+	e := CreateFiles(temp, os.ModePerm, map[string][]byte{
+		"abc.txt":        []byte("Weatherwax"),
+		"xyz.txt":        []byte("Ogg"),
+		"nested/abc.txt": []byte("Garlick"),
+		"empty/":         nil,
+	})
+	require.Nil(t, e)
+
+	requireFile(t, temp+"/abc.txt", "Weatherwax")
+	requireFile(t, temp+"/xyz.txt", "Ogg")
+	require.DirExists(t, temp+"/nested")
+	requireFile(t, temp+"/nested/abc.txt", "Garlick")
+	require.DirExists(t, temp+"/empty")
 }
