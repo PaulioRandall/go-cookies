@@ -27,6 +27,9 @@ func Pushd(dir string) error {
 
 // Popd emulates the popd bash command.
 func Popd() error {
+	if len(WorkDirHistory) == 0 {
+		return nil
+	}
 	last := len(WorkDirHistory) - 1
 	dir := WorkDirHistory[last]
 	if e := os.Chdir(dir); e != nil {

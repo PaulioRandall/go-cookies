@@ -40,36 +40,42 @@ func TestPushd_AND_Popd(t *testing.T) {
 	home, temp := startFileTest()
 	defer endFileTest(home, temp)
 
-	a, e := ioutil.TempDir(temp, "a")
-	if e != nil {
-		panic(e)
+	checkErr := func(e error) {
+		if e != nil {
+			panic(e)
+		}
 	}
-	println(a)
-	e = Pushd(a)
-	require.Nil(t, e)
-	require.Equal(t, 1, len(WorkDirHistory))
-	require.Equal(t, temp, WorkDirHistory[0])
+
+	requireHistory := func(exps ...string) {
+		require.Equal(t, len(exps), len(WorkDirHistory))
+		for i, exp := range exps {
+			require.Equal(t, exp, WorkDirHistory[i])
+		}
+	}
+
+	a, e := ioutil.TempDir(temp, "a")
+	checkErr(e)
+	require.Nil(t, Pushd(a))
+	requireHistory(temp)
 
 	b, e := ioutil.TempDir(a, "b")
-	if e != nil {
-		panic(e)
-	}
-	e = Pushd(b)
-	require.Nil(t, e)
-	require.Equal(t, 2, len(WorkDirHistory))
-	require.Equal(t, temp, WorkDirHistory[0])
-	require.Equal(t, a, WorkDirHistory[1])
+	checkErr(e)
+	require.Nil(t, Pushd(b))
+	requireHistory(temp, a)
 
 	c, e := ioutil.TempDir(a, "c")
-	if e != nil {
-		panic(e)
-	}
-	e = Pushd(c)
-	require.Nil(t, e)
-	require.Equal(t, 3, len(WorkDirHistory))
-	require.Equal(t, temp, WorkDirHistory[0])
-	require.Equal(t, a, WorkDirHistory[1])
-	require.Equal(t, b, WorkDirHistory[2])
+	checkErr(e)
+	require.Nil(t, Pushd(c))
+	requireHistory(temp, a, b)
+
+	require.Nil(t, Popd())
+	requireHistory(temp, a)
+
+	require.Nil(t, Popd())
+	requireHistory(temp)
+
+	require.Nil(t, Popd())
+	requireHistory()
 }
 
 func TestFileToQuote(t *testing.T) {
