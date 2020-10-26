@@ -12,11 +12,6 @@ import (
 // functions.
 var WorkDirHistory = []string{}
 
-// CD emulates cd bash command, it's just an alias for os.Chdir.
-func CD(dir string) error {
-	return os.Chdir(dir)
-}
-
 // Pushd emulates pushd bash command.
 func Pushd(dir string) error {
 	curr, e := os.Getwd()
@@ -39,21 +34,6 @@ func Popd() error {
 	}
 	WorkDirHistory = WorkDirHistory[:last]
 	return nil
-}
-
-// RemoveDir recursively removes directory 'dir'. If something was removed then
-// true is returned rather than an error.
-func RemoveDir(dir string) (bool, error) {
-	switch _, e := os.Stat(dir); {
-	case os.IsNotExist(e):
-		return false, nil
-	case e != nil:
-		return false, Wrap(e, "Could not access %s", dir)
-	case os.RemoveAll(dir) != nil:
-		return false, Wrap(e, "Unable to remove %s", dir)
-	default:
-		return true, nil
-	}
 }
 
 // FileExists returns true if the file exists, false if not, and an error if

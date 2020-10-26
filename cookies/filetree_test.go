@@ -1,7 +1,6 @@
 package cookies
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -12,17 +11,6 @@ import (
 )
 
 // TODO: Simplify and clean up
-
-func randomDir(t *testing.T) string {
-	f, err := ioutil.TempDir(".", "")
-	require.Nil(t, err)
-	return f
-}
-
-func removeDir(t *testing.T, dir string) {
-	err := os.RemoveAll(dir)
-	require.Nil(t, err)
-}
 
 func createTestFile(f string) error {
 	s := filepath.Dir(f)
@@ -62,12 +50,9 @@ func AssertNotExists(t *testing.T, f string) {
 	assert.True(t, os.IsNotExist(err), pre+"Unable to determine if exists")
 }
 
-// ****************************************************************************
-// Tests start here!
-// ****************************************************************************
 func TestCreateParent(t *testing.T) {
-	n := randomDir(t)
-	defer removeDir(t, n)
+	home, n := startFileTest()
+	defer endFileTest(home, n)
 
 	err := createParent(n + "/parent/file.txt")
 	require.Nil(t, err)
@@ -75,8 +60,8 @@ func TestCreateParent(t *testing.T) {
 }
 
 func TestCreateDir(t *testing.T) {
-	n := randomDir(t)
-	defer removeDir(t, n)
+	home, n := startFileTest()
+	defer endFileTest(home, n)
 
 	err := createDir(n)
 	require.Nil(t, err)
@@ -84,8 +69,8 @@ func TestCreateDir(t *testing.T) {
 }
 
 func TestCreateFile(t *testing.T) {
-	n := randomDir(t)
-	defer removeDir(t, n)
+	home, n := startFileTest()
+	defer endFileTest(home, n)
 
 	f := n + "/parent/file.txt"
 	d := "Three little piggies"
@@ -104,8 +89,8 @@ func TestIsDir(t *testing.T) {
 }
 
 func TestCreateFiles(t *testing.T) {
-	n := randomDir(t)
-	defer removeDir(t, n)
+	home, n := startFileTest()
+	defer endFileTest(home, n)
 
 	tree := FileTree{
 		Root: FilePath(n),
@@ -117,7 +102,6 @@ func TestCreateFiles(t *testing.T) {
 		},
 	}
 
-	fmt.Println(tree)
 	err := createFiles(tree.Root, tree.Files)
 	require.Nil(t, err)
 
@@ -130,8 +114,8 @@ func TestCreateFiles(t *testing.T) {
 }
 
 func TestDeleteFiles(t *testing.T) {
-	n := randomDir(t)
-	defer removeDir(t, n)
+	home, n := startFileTest()
+	defer endFileTest(home, n)
 
 	require.Nil(t, createTestFile(n+"/temp/abc.txt"))
 	require.Nil(t, createTestFile(n+"/temp/xyz.txt"))

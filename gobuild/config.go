@@ -40,7 +40,7 @@ func (c Config) Godo() (int, error) {
 		return EXIT_OK, nil
 
 	case "clean":
-		if _, e := cookies.RemoveDir(c.BuildDir); e != nil {
+		if e := os.RemoveAll(c.BuildDir); e != nil {
 			return EXIT_BAD, e
 		}
 		return EXIT_BAD, nil
@@ -69,7 +69,7 @@ func (c Config) Godo() (int, error) {
 }
 
 func (c *Config) Setup() error {
-	if _, e := cookies.RemoveDir(c.BuildDir); e != nil {
+	if e := os.RemoveAll(c.BuildDir); e != nil {
 		return e
 	}
 	if e := os.MkdirAll(c.BuildDir, c.BuildPerm); e != nil {
@@ -83,8 +83,7 @@ func (c Config) Help() {
 }
 
 func (c Config) Clean() error {
-	_, e := cookies.RemoveDir(c.BuildDir)
-	return e
+	return os.RemoveAll(c.BuildDir)
 }
 
 func (c Config) Build() error {
