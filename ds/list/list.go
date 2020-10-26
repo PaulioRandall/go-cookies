@@ -31,16 +31,29 @@ func (l *List) Empty() bool {
 	return l.Size == 0
 }
 
-// InRange returns true if 'i' is a valid index for List.Get.
+// InRange returns true if 'i' is a valid index for List.Get, List.Set and
+// List.Insert.
 func (l *List) InRange(i int) bool {
 	return i >= 0 && i < l.Size
 }
 
-// Get returns the item at index i.
+// Get returns the item at index 'i'.
 func (l *List) Get(i int) (Thing, error) {
 	for idx, n := 0, l.Head; n != nil; idx, n = idx+1, n.Next {
 		if idx == i {
 			return n.Data, nil
+		}
+	}
+	return Zero, l.checkRange(i)
+}
+
+// Set sets 't' as the item at index 'i' returning the previously held item.
+func (l *List) Set(i int, t Thing) (Thing, error) {
+	for idx, n := 0, l.Head; n != nil; idx, n = idx+1, n.Next {
+		if idx == i {
+			prev := n.Data
+			n.Data = t
+			return prev, nil
 		}
 	}
 	return Zero, l.checkRange(i)
@@ -141,10 +154,13 @@ func (l *List) Remove(i int) error {
 	return nil
 }
 
-// Foreach applies the function to each item in the list.
-func (l *List) Foreach(f func(int, Thing)) {
+// Foreach applies function 'f' to each item in the list returning the moment
+// a result is false.
+func (l *List) Foreach(f func(int, Thing) bool) {
 	for i, n := 0, l.Head; n != nil; i, n = i+1, n.Next {
-		f(i, n.Data)
+		if !f(i, n.Data) {
+			return
+		}
 	}
 }
 
