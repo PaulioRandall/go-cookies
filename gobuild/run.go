@@ -15,7 +15,7 @@ const (
 // use the default as specified by functions that accept exec.Cmd. EXIT_OK is
 // returned on successful execution otherwise EXIT_BAD or another non-zero
 // exit code is returned.
-func Run(exePath string, workDir string, args ...string) (int, error) {
+func RunCmd(exePath string, workDir string, args ...string) (int, error) {
 
 	var e error
 

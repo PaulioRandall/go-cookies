@@ -10,9 +10,8 @@ import (
 )
 
 var (
-	ROOT_DIR      = goquick.AbsPath(".")
-	BUILD_DIR     = filepath.Join(ROOT_DIR, "build")
-	BUILD_MODE    = os.ModePerm
+	ROOT          = goquick.AbsPath(".")
+	BUILD         = filepath.Join(ROOT, "build")
 	BUILD_FLAGS   = ""   // "-gcflags -m -ldflags -s -w"
 	TEST_TIMEOUT  = "2s" // E.g. 1m, 5s, 250ms, etc
 	MAIN_PKG_NAME = "cmd"
@@ -39,28 +38,28 @@ func main() {
 		fmt.Println(USAGE)
 
 	case "clean":
-		goquick.Clean(BUILD_DIR)
+		goquick.Clean(BUILD)
 
 	case "build":
-		goquick.Clean(BUILD_DIR)
-		goquick.Setup(BUILD_DIR, BUILD_MODE)
-		goquick.Build(ROOT_DIR, BUILD_DIR, BUILD_FLAGS, MAIN_PKG)
-		goquick.Format(ROOT_DIR)
+		goquick.Clean(BUILD)
+		goquick.Setup(BUILD, os.ModePerm)
+		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
+		goquick.Format(ROOT, "./...")
 
 	case "test":
-		goquick.Clean(BUILD_DIR)
-		goquick.Setup(BUILD_DIR, BUILD_MODE)
-		goquick.Build(ROOT_DIR, BUILD_DIR, BUILD_FLAGS, MAIN_PKG)
-		goquick.Format(ROOT_DIR)
-		goquick.Test(ROOT_DIR, TEST_TIMEOUT)
+		goquick.Clean(BUILD)
+		goquick.Setup(BUILD, os.ModePerm)
+		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
+		goquick.Format(ROOT, "./...")
+		goquick.Test(ROOT, "-timeout", TEST_TIMEOUT, "./...")
 
 	case "run":
-		goquick.Clean(BUILD_DIR)
-		goquick.Setup(BUILD_DIR, BUILD_MODE)
-		goquick.Build(ROOT_DIR, BUILD_DIR, BUILD_FLAGS, MAIN_PKG)
-		goquick.Format(ROOT_DIR)
-		goquick.Test(ROOT_DIR, TEST_TIMEOUT)
-		code = goquick.Run(BUILD_DIR, MAIN_PKG_NAME)
+		goquick.Clean(BUILD)
+		goquick.Setup(BUILD, os.ModePerm)
+		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
+		goquick.Format(ROOT, "./...")
+		goquick.Test(ROOT, "-timeout", TEST_TIMEOUT, "./...")
+		code = goquick.Run(BUILD, MAIN_PKG_NAME)
 
 	default:
 		goquick.UsageErr(USAGE, "Unknown command argument %q", cmd)

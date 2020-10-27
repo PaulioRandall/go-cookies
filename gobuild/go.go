@@ -35,7 +35,8 @@ func NewGo(workDir string) (Go, error) {
 	return g, nil
 }
 
-func (g Go) NewCmd(args ...string) *exec.Cmd {
+func (g Go) NewCmd(action string, args ...string) *exec.Cmd {
+	args = append([]string{action}, args...)
 	cmd := exec.Command(g.Path, args...)
 	cmd.Dir = g.WorkDir
 	cmd.Stdin = os.Stdin
@@ -44,40 +45,22 @@ func (g Go) NewCmd(args ...string) *exec.Cmd {
 	return cmd
 }
 
-func (g Go) Build(dir, flags, pkg string) error {
-	var cmd *exec.Cmd
-	if dir == "" {
-		cmd = g.NewCmd("build", flags, pkg)
-	} else {
-		cmd = g.NewCmd("build", "-o", dir, flags, pkg)
-	}
-	return run(cmd, "Build failed")
+func (g Go) Build(args ...string) error {
+	cmd := g.NewCmd("build", args...)
+	return Run(cmd, "Build failed")
 }
 
-func (g Go) Fmt(pkg string) error {
-	cmd := g.NewCmd("fmt", pkg)
-	return run(cmd, "Format failed")
+func (g Go) Fmt(args ...string) error {
+	cmd := g.NewCmd("fmt", args...)
+	return Run(cmd, "Format failed")
 }
 
-func (g Go) FmtAll() error {
-	return g.Fmt("./...")
+func (g Go) Test(args ...string) error {
+	cmd := g.NewCmd("test", args...)
+	return Run(cmd, "Testing error")
 }
 
-func (g Go) Test(pkg string, timeout string) error {
-	var cmd *exec.Cmd
-	if timeout == "" {
-		cmd = g.NewCmd("test", pkg)
-	} else {
-		cmd = g.NewCmd("test", pkg, "-timeout", timeout)
-	}
-	return run(cmd, "Testing error")
-}
-
-func (g Go) TestAll(timeout string) error {
-	return g.Test("./...", timeout)
-}
-
-func run(cmd *exec.Cmd, errMsg string) error {
+func Run(cmd *exec.Cmd, errMsg string) error {
 	if e := cmd.Run(); e != nil {
 		return cookies.Wrap(e, "Execution failed")
 	}

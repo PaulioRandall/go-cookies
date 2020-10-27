@@ -18,24 +18,24 @@ func Setup(buildDir string, mode os.FileMode) {
 	ExitIfErr(e, "Failed to make build directory: %s", buildDir)
 }
 
-func Build(rootDir, buildDir, buildFlags, mainPkg string) {
+func Build(rootDir string, args ...string) {
 	g, e := gobuild.NewGo(rootDir)
 	ExitIfErr(e, "Failed to build")
-	e = g.Build(buildDir, buildFlags, mainPkg)
+	e = g.Build(args...)
 	ExitIfErr(e, "Failed to build")
 }
 
-func Format(rootDir string) {
+func Format(rootDir string, args ...string) {
 	g, e := gobuild.NewGo(rootDir)
 	ExitIfErr(e, "Failed to format")
-	e = g.FmtAll()
+	e = g.Fmt(args...)
 	ExitIfErr(e, "Failed to format")
 }
 
-func Test(rootDir, testTimeout string) {
+func Test(rootDir string, args ...string) {
 	g, e := gobuild.NewGo(rootDir)
 	ExitIfErr(e, "Testing failed")
-	e = g.TestAll(testTimeout)
+	e = g.Test(args...)
 	ExitIfErr(e, "Testing failed")
 }
 
@@ -44,7 +44,7 @@ func Run(buildDir, mainPkgName string, args ...string) int {
 	exePath := filepath.Join(buildDir, mainPkgName)
 	exePath, e = filepath.Abs(exePath)
 	ExitIfErr(e, "Failed to run")
-	code, e := gobuild.Run(exePath, buildDir, args...)
+	code, e := gobuild.RunCmd(exePath, buildDir, args...)
 	ExitIfErr(e, "Failed to run")
 	return code
 }
