@@ -6,22 +6,31 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/PaulioRandall/go-cookies/goquick"
+	"github.com/PaulioRandall/go-cookies/go/quick"
 )
 
 var (
-	ROOT          = goquick.AbsPath(".")
-	BUILD         = filepath.Join(ROOT, "build")
-	BUILD_FLAGS   = ""   // "-gcflags -m -ldflags -s -w"
-	TEST_TIMEOUT  = "2s" // E.g. 1m, 5s, 250ms, etc
-	MAIN_PKG_NAME = "cmd"
-	MAIN_PKG      = "github.com/PaulioRandall/go-cookies/" + MAIN_PKG_NAME
-	USAGE         = `Usage:
+	ROOT      = quick.AbsPath(".")
+	BUILD     = filepath.Join(ROOT, "build")
+	PROJ_PATH = "github.com/PaulioRandall/go-cookies"
+	MAIN_PKG  = "cmd"
+	USAGE     = `Usage:
 	help       Show usage
 	clean      Remove build files
 	build      Build -> format -> vet
 	test       Build -> format -> test -> vet
 	run        Build -> format -> test -> vet -> run`
+)
+
+var (
+	BUILD_ARGS = []string{
+		"-o", BUILD,
+		"", // "-gcflags -m -ldflags -s -w"
+		PROJ_PATH + "/" + MAIN_PKG,
+	}
+	FMT_ARGS  = []string{"./..."}
+	TEST_ARGS = []string{"-timeout", "2s", "./..."}
+	VET_ARGS  = []string{"./..."}
 )
 
 func main() {
@@ -30,7 +39,7 @@ func main() {
 	args := os.Args[1:]
 
 	if len(args) == 0 {
-		goquick.UsageErr(USAGE, "Missing command argument")
+		quick.UsageErr(USAGE, "Missing command argument")
 	}
 
 	switch cmd := args[0]; strings.ToLower(cmd) {
@@ -38,34 +47,34 @@ func main() {
 		fmt.Println(USAGE)
 
 	case "clean":
-		goquick.Clean(BUILD)
+		quick.Clean(BUILD)
 
 	case "build":
-		goquick.Clean(BUILD)
-		goquick.Setup(BUILD, os.ModePerm)
-		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
-		goquick.Fmt(ROOT, "./...")
-		goquick.Vet(ROOT, "-c=4", "./...")
+		quick.Clean(BUILD)
+		quick.Setup(BUILD, os.ModePerm)
+		quick.Build(ROOT, BUILD_ARGS...)
+		quick.Fmt(ROOT, FMT_ARGS...)
+		quick.Vet(ROOT, VET_ARGS...)
 
 	case "test":
-		goquick.Clean(BUILD)
-		goquick.Setup(BUILD, os.ModePerm)
-		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
-		goquick.Fmt(ROOT, "./...")
-		goquick.Test(ROOT, "-timeout", TEST_TIMEOUT, "./...")
-		goquick.Vet(ROOT, "-c=4", "./...")
+		quick.Clean(BUILD)
+		quick.Setup(BUILD, os.ModePerm)
+		quick.Build(ROOT, BUILD_ARGS...)
+		quick.Fmt(ROOT, FMT_ARGS...)
+		quick.Test(ROOT, TEST_ARGS...)
+		quick.Vet(ROOT, VET_ARGS...)
 
 	case "run":
-		goquick.Clean(BUILD)
-		goquick.Setup(BUILD, os.ModePerm)
-		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
-		goquick.Fmt(ROOT, "./...")
-		goquick.Test(ROOT, "-timeout", TEST_TIMEOUT, "./...")
-		goquick.Vet(ROOT, "-c=4", "./...")
-		code = goquick.Run(BUILD, MAIN_PKG_NAME)
+		quick.Clean(BUILD)
+		quick.Setup(BUILD, os.ModePerm)
+		quick.Build(ROOT, BUILD_ARGS...)
+		quick.Fmt(ROOT, FMT_ARGS...)
+		quick.Test(ROOT, TEST_ARGS...)
+		quick.Vet(ROOT, VET_ARGS...)
+		code = quick.Run(BUILD, MAIN_PKG)
 
 	default:
-		goquick.UsageErr(USAGE, "Unknown command argument %q", cmd)
+		quick.UsageErr(USAGE, "Unknown command argument %q", cmd)
 	}
 
 	fmt.Printf("\nExit: %d\n", code)
