@@ -60,6 +60,11 @@ func (g Go) Test(args ...string) error {
 	return Run(cmd, "Testing error")
 }
 
+func (g Go) Vet(args ...string) error {
+	cmd := g.NewCmd("vet", args...)
+	return Run(cmd, "Vet failed")
+}
+
 func Run(cmd *exec.Cmd, errMsg string) error {
 	if e := cmd.Run(); e != nil {
 		return cookies.Wrap(e, "Execution failed")

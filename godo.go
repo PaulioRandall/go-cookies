@@ -19,9 +19,9 @@ var (
 	USAGE         = `Usage:
 	help       Show usage
 	clean      Remove build files
-	build      Build -> format
-	test       Build -> format -> test
-	run        Build -> format -> test -> run`
+	build      Build -> format -> vet
+	test       Build -> format -> test -> vet
+	run        Build -> format -> test -> vet -> run`
 )
 
 func main() {
@@ -44,21 +44,24 @@ func main() {
 		goquick.Clean(BUILD)
 		goquick.Setup(BUILD, os.ModePerm)
 		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
-		goquick.Format(ROOT, "./...")
+		goquick.Fmt(ROOT, "./...")
+		goquick.Vet(ROOT, "-c=4", "./...")
 
 	case "test":
 		goquick.Clean(BUILD)
 		goquick.Setup(BUILD, os.ModePerm)
 		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
-		goquick.Format(ROOT, "./...")
+		goquick.Fmt(ROOT, "./...")
 		goquick.Test(ROOT, "-timeout", TEST_TIMEOUT, "./...")
+		goquick.Vet(ROOT, "-c=4", "./...")
 
 	case "run":
 		goquick.Clean(BUILD)
 		goquick.Setup(BUILD, os.ModePerm)
 		goquick.Build(ROOT, "-o", BUILD, BUILD_FLAGS, MAIN_PKG)
-		goquick.Format(ROOT, "./...")
+		goquick.Fmt(ROOT, "./...")
 		goquick.Test(ROOT, "-timeout", TEST_TIMEOUT, "./...")
+		goquick.Vet(ROOT, "-c=4", "./...")
 		code = goquick.Run(BUILD, MAIN_PKG_NAME)
 
 	default:
