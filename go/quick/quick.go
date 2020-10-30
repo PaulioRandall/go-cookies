@@ -90,7 +90,7 @@ func ExitIfErr(cause error, msg string, args ...interface{}) {
 	const code = 1
 	fmt.Printf("Exit: %d\n", code)
 	fmt.Printf("Error: "+msg+"\n", args...)
-	fmt.Printf("Caused by: %+v", cause)
+	fmt.Printf("Caused by: %+v\n", cause)
 	os.Exit(code)
 }
 
